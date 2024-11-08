@@ -10,7 +10,6 @@ export class PreloadScene extends Phaser.Scene {
         super(
             {
                 key: SCENE_KEYS.PRELOAD_SCENE,
-                active: true,
             }
         );
         console.log(SCENE_KEYS.PRELOAD_SCENE);
@@ -22,7 +21,8 @@ export class PreloadScene extends Phaser.Scene {
 
     preload() {
 
-        console.log("preload");
+        console.log(`[${PreloadScene.name}]:preload] invoked`);
+
 
         const backroundsPath = '/assets/images/backgrounds/';
         const uiPath = '/assets/images/ui/';
@@ -68,16 +68,8 @@ export class PreloadScene extends Phaser.Scene {
     }
 
     create() {
-        const background = this.add.image(0, 0, BATTLE_BACKGROUND_ASSET_KEYS.BRIDGE);
-        background.setOrigin(0.5, 0.5); 
-
-        background.x = this.cameras.main.width / 2;
-        background.y = this.cameras.main.height / 2;
-
-        const scaleX = this.cameras.main.width / background.width;
-        const scaleY = this.cameras.main.height / background.height;
-        const scale = Math.min(scaleX, scaleY);
-        background.setScale(scale);
+        console.log(`[${PreloadScene.name}]:create] invoked`);
+        this.scene.start(SCENE_KEYS.BATTLE_SCENE);
     }
 
     update() {
