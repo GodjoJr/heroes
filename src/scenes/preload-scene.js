@@ -28,10 +28,17 @@ export class PreloadScene extends Phaser.Scene {
         const uiPath = '/assets/images/ui/';
         const heroesPath = '/assets/images/heroes/';
 
-        this.load.image(
-            BATTLE_BACKGROUND_ASSET_KEYS.BRIDGE,
-            backroundsPath + 'bridge/bridge-castle.png'
-        );
+        if(Math.random() > 0.5) {
+            this.load.image(
+                BATTLE_BACKGROUND_ASSET_KEYS.BRIDGE,
+                backroundsPath + '/bridge/bridge-castle.png'
+            );
+        } else {
+            this.load.image(
+                BATTLE_BACKGROUND_ASSET_KEYS.BRIDGE,
+                backroundsPath + '/bridge/bridge-bamboo.png'
+            );
+        }
 
         this.load.image(
             BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND,
@@ -40,17 +47,17 @@ export class PreloadScene extends Phaser.Scene {
 
         this.load.image(
             HEALTH_BAR_ASSET_KEYS.LEFT_CAP,
-            uiPath + 'health-bar/barBlue_horizontalLeft.png'
+            uiPath + 'health-bar/barRed_horizontalLeft.png'
 
         );
         this.load.image(
             HEALTH_BAR_ASSET_KEYS.MIDDLE,
-            uiPath + 'health-bar/barBlue_horizontalBlue.png'
+            uiPath + 'health-bar/barRed_horizontalMid.png'
         );
 
         this.load.image(
             HEALTH_BAR_ASSET_KEYS.RIGHT_CAP,
-            uiPath + 'health-bar/barBlue_horizontalRight.png'
+            uiPath + 'health-bar/barRed_horizontalRight.png'
 
         );
 
