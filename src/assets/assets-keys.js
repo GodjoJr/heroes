@@ -6,7 +6,7 @@ export const BATTLE_BACKGROUND_ASSET_KEYS = Object.freeze({
 
 export const HEROES = Object.freeze({
     REAPER_ICE: 'FAUCHEUSE',
-    REAPER_FIRE: 'ENEMY_FAUCHEUSE',
+    REAPER_FIRE: 'FAUCHEUSE ENNEMI',
 });
 
 export const BATTLE_ASSET_KEYS = Object.freeze({
