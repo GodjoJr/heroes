@@ -1,5 +1,7 @@
 import { HEROES } from "../../../assets/assets-keys.js";
+import Phaser from "../../../lib/phaser.js";
 
+//Battle menu options
 const BATTLE_MENU_OPTIONS = Object.freeze({
     FIGHT: 'COMBATTRE',
     SWITCH: 'CHANGER',
@@ -7,16 +9,32 @@ const BATTLE_MENU_OPTIONS = Object.freeze({
     RUN: 'FUIR'
 })
 
+//Battle text style
 const battleUITextStyle = { color: '#000000', fontSize: '30px' }
 
 
 
 export class BattleMenu {
+
+    /** @type {Phaser.Scene} */
     #scene;
+
+    /** @type {Phaser.GameObjects.Container} */
     #mainBattleMenuPhaserContainerGameObject;
+
+    /** @type {Phaser.GameObjects.Container} */
     #moveSelectionSubBattleMenuPhaserContainerGameObject;
+
+    /** @type {Phaser.GameObjects.Text} */
     #battleTextGameObjectLine1;
+
+    /** @type {Phaser.GameObjects.Text} */
     #battleTextGameObjectLine2;
+
+    /**
+     * Create the scene, the main battle menu and the hero attack sub menu
+     * @param {Phaser.Scene} scene 
+     */
     constructor(scene) {
         this.#scene = scene;
         this.#createMainInfoPane();
@@ -24,6 +42,7 @@ export class BattleMenu {
         this.#createHeroAttackSubMenu();
     }
 
+    //show the main battle menu and text
     showMainBattleMenu() {
         this.#battleTextGameObjectLine1.setText('Qu\'est ce que');
         this.#mainBattleMenuPhaserContainerGameObject.setAlpha(1);
@@ -31,20 +50,44 @@ export class BattleMenu {
         this.#battleTextGameObjectLine2.setAlpha(1);
     }
 
+    //hide the main battle menu and text
     hideMainBattleMenu() {
         this.#mainBattleMenuPhaserContainerGameObject.setAlpha(0);
         this.#battleTextGameObjectLine1.setAlpha(0);
         this.#battleTextGameObjectLine2.setAlpha(0);
     }
 
-    showHeroAttackSubeMenu() {
+    //show the hero attack sub menu
+    showHeroAttackSubMenu() {
         this.#moveSelectionSubBattleMenuPhaserContainerGameObject.setAlpha(1);
     }
 
+    //hide the hero attack sub menu
     hideHeroAttackSubMenu() {
         this.#moveSelectionSubBattleMenuPhaserContainerGameObject.setAlpha(0);
     }
 
+    /**
+     * 
+     * @param {import ('../../../common/direction.js').Direction | 'OK' | 'CANCEL'} input 
+     */
+    handlePlayerInput(input) {
+        if (input === 'CANCEL') {
+            this.hideHeroAttackSubMenu();
+            this.showMainBattleMenu();
+            return;
+        }
+
+        if (input === 'OK') {
+            this.hideMainBattleMenu();
+            this.showHeroAttackSubMenu();
+            return;
+        }
+
+        console.log(input);
+    }
+
+    //create the main battle menu and text
     #createMainBattleMenu() {
         this.#battleTextGameObjectLine1 = this.#scene.add.text(25, 468, 'Qu\'est ce que', battleUITextStyle);
         this.#battleTextGameObjectLine2 = this.#scene.add.text(25, 508, `${HEROES.REAPER_ICE} veut faire ?`, battleUITextStyle);
@@ -60,6 +103,7 @@ export class BattleMenu {
         this.hideMainBattleMenu();
     }
 
+    //create the hero attack sub menu
     #createHeroAttackSubMenu() {
         this.#moveSelectionSubBattleMenuPhaserContainerGameObject = this.#scene.add.container(0, 448, [
             this.#scene.add.text(55, 22, 'Lame glace', battleUITextStyle),
@@ -71,6 +115,7 @@ export class BattleMenu {
         this.hideHeroAttackSubMenu();
     }
 
+    //create the main info pane
     #createMainInfoPane() {
         const padding = 4;
         const rectHeight = 124;
@@ -80,6 +125,8 @@ export class BattleMenu {
             .setStrokeStyle(8, 0x5D3A1A);
     }
 
+
+    //create the sub info pane
     #createSubInfoPane() {
         const padding = 3;
         const rectHeight = 124;

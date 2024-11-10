@@ -5,11 +5,17 @@ import { HEROES } from "../assets/assets-keys.js";
 import { BATTLE_ASSET_KEYS } from "../assets/assets-keys.js";
 import { HEALTH_BAR_ASSET_KEYS } from "../assets/assets-keys.js";
 import { BattleMenu } from "../battle/ui/menu/battle-menu.js";
+import { DIRECTION } from "../common/direction.js";
 
 
 
 export class BattleScene extends Phaser.Scene {
+
+    /** @type {BattleMenu} */
     #battleMenu;
+
+    /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
+    #cursorKeys;
     constructor() {
         super(
             {
@@ -53,6 +59,7 @@ export class BattleScene extends Phaser.Scene {
             }
         );
 
+        //render the player health bar
         this.add.container(556, 308, [
             this.add.image(0, 0, BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND).setOrigin(0, 0).setScale(1, 0.8),
             playerHeroName,
@@ -98,6 +105,7 @@ export class BattleScene extends Phaser.Scene {
             }
         );
 
+        //render the enemy health bar
         this.add.container(5, 5, [
             this.add.image(0, 0, BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND).setOrigin(0, 0).setScale(1, 0.6),
             enemyHeroName,
@@ -126,8 +134,45 @@ export class BattleScene extends Phaser.Scene {
         //render the main info pane and sub info panes
         this.#battleMenu = new BattleMenu(this);
         this.#battleMenu.showMainBattleMenu();
+
+        this.#cursorKeys = this.input.keyboard.createCursorKeys();
     }
 
+    update() {
+        const wasSpaceKeyPressed = Phaser.Input.Keyboard.JustDown(this.#cursorKeys.space);
+        if(wasSpaceKeyPressed) {
+            this.#battleMenu.handlePlayerInput('OK');
+            return;
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.#cursorKeys.shift)) {
+            this.#battleMenu.handlePlayerInput('CANCEL');
+            return;
+        }
+
+        /** @type {import('../common/direction.js').Direction} */
+        let selectedDirection = DIRECTION.NONE;
+        if((this.#cursorKeys.up.isDown)) {
+            selectedDirection = DIRECTION.UP;
+        } else if (this.#cursorKeys.down.isDown) {
+            selectedDirection = DIRECTION.DOWN;
+        } else if (this.#cursorKeys.left.isDown) {
+            selectedDirection = DIRECTION.LEFT;
+        } else if (this.#cursorKeys.right.isDown) {
+            selectedDirection = DIRECTION.RIGHT;
+        }
+
+        if (selectedDirection !== DIRECTION.NONE) {
+            this.#battleMenu.handlePlayerInput(selectedDirection);
+        }
+
+    }
+
+    /**
+     * 
+     * @param {number} x the x position to place the health bar container
+     * @param {number} y the y position to place the health bar container
+     * @returns {Phaser.GameObjects.Container}
+     */
     #createHealth(x, y) {
         const scaleY = 1;
 
