@@ -4,6 +4,7 @@ import { SCENE_KEYS } from "./scene-keys.js";
 import { HEROES } from "../assets/assets-keys.js";
 import { BATTLE_ASSET_KEYS } from "../assets/assets-keys.js";
 import { HEALTH_BAR_ASSET_KEYS } from "../assets/assets-keys.js";
+import { UI_ASSET_KEYS } from "../assets/assets-keys.js";
 
 export class PreloadScene extends Phaser.Scene {
     constructor() {
@@ -69,6 +70,11 @@ export class PreloadScene extends Phaser.Scene {
         this.load.image(
             HEROES.REAPER_FIRE,
             heroesPath + 'reaper/reaper-fire.png'
+        );
+
+        this.load.image(
+            UI_ASSET_KEYS.CURSOR,
+            uiPath + 'cursor.png'
         );
 
 
