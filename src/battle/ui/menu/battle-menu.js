@@ -61,6 +61,9 @@ export class BattleMenu {
     /** @type {boolean} */
     #waitingForPlayerInput;
 
+    /** @type {number | undefined} */
+    #selectedaAttackIndex;
+
     /**
      * Create the scene
      * @param {Phaser.Scene} scene 
@@ -73,9 +76,18 @@ export class BattleMenu {
         this.#quededInfoPanelCallback = undefined;
         this.#queuedInfoPanelMessages = [];
         this.#waitingForPlayerInput = false;
+        this.#selectedaAttackIndex = undefined;
         this.#createMainInfoPane();
         this.#createMainBattleMenu();
         this.#createHeroAttackSubMenu();
+    }
+
+    /** @type {number | undefined} */
+    get selectedAttack() {
+        if (this.#activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MOVE_SELECT) {
+            return this.#selectedaAttackIndex;
+        }
+        return undefined;
     }
 
     //show the main battle menu and text
@@ -87,6 +99,8 @@ export class BattleMenu {
         this.#battleTextGameObjectLine2.setAlpha(1);
 
         this.#mainBattleMenuCursorPhaserImageGameObject.setPosition(BATTLE_MENU_CURSOR_POSITIONS.x, BATTLE_MENU_CURSOR_POSITIONS.y);
+
+        this.#selectedaAttackIndex = undefined;
     }
 
     //hide the main battle menu and text
@@ -129,7 +143,7 @@ export class BattleMenu {
             }
 
             if (this.#activeBattleMenu === ACTIVE_BATTLE_MENU.BATTLE_MOVE_SELECT) {
-                //TODO
+                this.#handlePlayerChooseAttack();
                 return;
             }
             return;
@@ -490,6 +504,7 @@ export class BattleMenu {
         }
 
         if (this.#selectedBattleMenuOptions === BATTLE_MENU_OPTIONS.CHANGER) {
+            this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_SWITCH;
             this.updateInfoPaneMessagesAndWaitForInput(
                 ['Vos n\'avez pas d\'alliés pour le moment...'],
                 () => { this.#switchToMainBattleMenu(); }
@@ -498,6 +513,7 @@ export class BattleMenu {
         }
 
         if (this.#selectedBattleMenuOptions === BATTLE_MENU_OPTIONS.SAC) {
+            this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_ITEM;
             this.updateInfoPaneMessagesAndWaitForInput(
                 ['Votre sac est vide...'],
                 () => { this.#switchToMainBattleMenu(); }
@@ -506,6 +522,7 @@ export class BattleMenu {
         }
 
         if (this.#selectedBattleMenuOptions === BATTLE_MENU_OPTIONS.FUIR) {
+            this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_FLEE;
             this.updateInfoPaneMessagesAndWaitForInput(
                 ['Fuite impossible...'],
                 () => { this.#switchToMainBattleMenu(); }
@@ -516,6 +533,29 @@ export class BattleMenu {
 
 
         exhaustiveGuard(this.#selectedBattleMenuOptions);
+    }
+
+    #handlePlayerChooseAttack() {
+        let selectedaAttackIndex = 0;
+        switch (this.#selectedAttackMoveOptions) {
+            case ATTACK_MOVE_OPTIONS.MOVE_1:
+                selectedaAttackIndex = 0;
+                break;
+            case ATTACK_MOVE_OPTIONS.MOVE_2:
+                selectedaAttackIndex = 1;
+                break;
+            case ATTACK_MOVE_OPTIONS.MOVE_3:
+                selectedaAttackIndex = 2;
+                break;
+            case ATTACK_MOVE_OPTIONS.MOVE_4:
+                selectedaAttackIndex = 3;
+                break;
+            default:
+                exhaustiveGuard(this.#selectedAttackMoveOptions);
+                return;
+        }
+
+        this.#selectedaAttackIndex = selectedaAttackIndex;
     }
 
 }

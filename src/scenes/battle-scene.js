@@ -140,10 +140,23 @@ export class BattleScene extends Phaser.Scene {
 
     update() {
         const wasSpaceKeyPressed = Phaser.Input.Keyboard.JustDown(this.#cursorKeys.space);
-        if(wasSpaceKeyPressed) {
+        if (wasSpaceKeyPressed) {
             this.#battleMenu.handlePlayerInput('OK');
-            return;
+
+            //check if the player selected an attack, and update display text
+            if (this.#battleMenu.selectedAttack === undefined) {
+                return;
+            }
+            console.log('Attaque choisie : ' + this.#battleMenu.selectedAttack);
+            this.#battleMenu.hideHeroAttackSubMenu();
+            this.#battleMenu.updateInfoPaneMessagesAndWaitForInput(
+                [`${HEROES.REAPER_ICE} utilise ${this.#battleMenu.selectedAttack}...`],
+                () => {
+                    this.#battleMenu.showMainBattleMenu();
+                }
+            );
         }
+
         if (Phaser.Input.Keyboard.JustDown(this.#cursorKeys.shift)) {
             this.#battleMenu.handlePlayerInput('CANCEL');
             return;
@@ -151,7 +164,7 @@ export class BattleScene extends Phaser.Scene {
 
         /** @type {import('../common/direction.js').Direction} */
         let selectedDirection = DIRECTION.NONE;
-        if((this.#cursorKeys.up.isDown)) {
+        if ((this.#cursorKeys.up.isDown)) {
             selectedDirection = DIRECTION.UP;
         } else if (this.#cursorKeys.down.isDown) {
             selectedDirection = DIRECTION.DOWN;
