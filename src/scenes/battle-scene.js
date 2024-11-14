@@ -1,11 +1,11 @@
 import Phaser from "../lib/phaser.js";
-import { BATTLE_BACKGROUND_ASSET_KEYS } from "../assets/assets-keys.js";
 import { SCENE_KEYS } from "./scene-keys.js";
 import { HEROES } from "../assets/assets-keys.js";
 import { BATTLE_ASSET_KEYS } from "../assets/assets-keys.js";
-import { HEALTH_BAR_ASSET_KEYS } from "../assets/assets-keys.js";
 import { BattleMenu } from "../battle/ui/menu/battle-menu.js";
 import { DIRECTION } from "../common/direction.js";
+import { Background } from "../battle/background.js";
+import { HealthBar } from "../battle/health-bar.js";
 
 
 
@@ -16,6 +16,7 @@ export class BattleScene extends Phaser.Scene {
 
     /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
     #cursorKeys;
+
     constructor() {
         super(
             {
@@ -28,17 +29,8 @@ export class BattleScene extends Phaser.Scene {
 
         console.log(`[${BattleScene.name}]:create] invoked`);
 
-        //create main background
-        const background = this.add.image(0, 0, BATTLE_BACKGROUND_ASSET_KEYS.BRIDGE);
-        background.setOrigin(0.5, 0.5);
-
-        background.x = this.cameras.main.width / 2;
-        background.y = this.cameras.main.height / 2;
-
-        const scaleX = this.cameras.main.width / background.width;
-        const scaleY = this.cameras.main.height / background.height;
-        const scale = Math.min(scaleX, scaleY);
-        background.setScale(scale);
+        const background = new Background(this);
+        background.showCastle();
 
         //rend out the player and enemy heroes
         const hero = this.add.image(256, 296, HEROES.REAPER_ICE, 0);
@@ -63,7 +55,7 @@ export class BattleScene extends Phaser.Scene {
         this.add.container(556, 308, [
             this.add.image(0, 0, BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND).setOrigin(0, 0).setScale(1, 0.8),
             playerHeroName,
-            this.#createHealth(34, 34),
+            new HealthBar(this, 34, 34).container,
             this.add.text(
                 playerHeroName.width + 50,
                 23,
@@ -109,7 +101,7 @@ export class BattleScene extends Phaser.Scene {
         this.add.container(5, 5, [
             this.add.image(0, 0, BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND).setOrigin(0, 0).setScale(1, 0.6),
             enemyHeroName,
-            this.#createHealth(34, 34),
+            new HealthBar(this, 34, 34).container,
             this.add.text(
                 enemyHeroName.width + 50,
                 23,
@@ -177,33 +169,5 @@ export class BattleScene extends Phaser.Scene {
         if (selectedDirection !== DIRECTION.NONE) {
             this.#battleMenu.handlePlayerInput(selectedDirection);
         }
-
-    }
-
-    /**
-     * 
-     * @param {number} x the x position to place the health bar container
-     * @param {number} y the y position to place the health bar container
-     * @returns {Phaser.GameObjects.Container}
-     */
-    #createHealth(x, y) {
-        const scaleY = 1;
-
-        const leftCap = this.add
-            .image(x, y, HEALTH_BAR_ASSET_KEYS.LEFT_CAP)
-            .setOrigin(0, 0.5)
-            .setScale(1, scaleY);
-
-        const middle = this.add.image(leftCap.x + leftCap.width, y, HEALTH_BAR_ASSET_KEYS.MIDDLE)
-            .setOrigin(0, 0.5)
-            .setScale(1, scaleY);
-        middle.displayWidth = 360;
-
-        const rightCap = this.add
-            .image(middle.x + middle.displayWidth, y, HEALTH_BAR_ASSET_KEYS.RIGHT_CAP)
-            .setOrigin(0, 0.5)
-            .setScale(1, scaleY);
-
-        return this.add.container(leftCap.x, y, [leftCap, middle, rightCap]);
     }
 }

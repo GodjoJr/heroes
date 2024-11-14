@@ -1,7 +1,8 @@
 
 
 export const BATTLE_BACKGROUND_ASSET_KEYS = Object.freeze({
-    BRIDGE: 'BRIDGE',
+    CASTLE: 'CASTLE',
+    BAMBOO: 'BAMBOO',
 });
 
 export const HEROES = Object.freeze({

@@ -29,17 +29,15 @@ export class PreloadScene extends Phaser.Scene {
         const uiPath = '/assets/images/ui/';
         const heroesPath = '/assets/images/heroes/';
 
-        if(Math.random() > 0.5) {
-            this.load.image(
-                BATTLE_BACKGROUND_ASSET_KEYS.BRIDGE,
-                backroundsPath + '/bridge/bridge-castle.png'
-            );
-        } else {
-            this.load.image(
-                BATTLE_BACKGROUND_ASSET_KEYS.BRIDGE,
-                backroundsPath + '/bridge/bridge-bamboo.png'
-            );
-        }
+        this.load.image(
+            BATTLE_BACKGROUND_ASSET_KEYS.CASTLE,
+            backroundsPath + '/bridge/bridge-castle.png'
+        );
+
+        this.load.image(
+            BATTLE_BACKGROUND_ASSET_KEYS.BAMBOO,
+            backroundsPath + '/bridge/bridge-bamboo.png'
+        );
 
         this.load.image(
             BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND,
