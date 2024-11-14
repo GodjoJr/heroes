@@ -7,6 +7,7 @@ import { DIRECTION } from "../common/direction.js";
 import { Background } from "../battle/background.js";
 import { HealthBar } from "../battle/health-bar.js";
 import { BattleHero } from "../battle/heroes/battle-hero.js";
+import { EnemyBattleHero } from "../battle/heroes/enemy-battle-hero.js";
 
 
 export class BattleScene extends Phaser.Scene {
@@ -16,8 +17,8 @@ export class BattleScene extends Phaser.Scene {
 
     /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
     #cursorKeys;
-    
-    /** @type {BattleHero} */
+
+    /** @type {EnemyBattleHero} */
     #activeEnemyHero
 
     constructor() {
@@ -36,7 +37,7 @@ export class BattleScene extends Phaser.Scene {
         background.showCastle();
 
         //rend out the player and enemy heroes
-        this.#activeEnemyHero = new BattleHero(
+        this.#activeEnemyHero = new EnemyBattleHero(
             {
                 scene: this,
                 heroDetails: {
@@ -49,13 +50,12 @@ export class BattleScene extends Phaser.Scene {
                     baseAttack: 5
                 }
             },
-            { x: 768, y: 144 }
         );
         const hero = this.add.image(256, 296, HEROES.REAPER_ICE, 0);
         hero.setScale(0.45);
         // const enemy = this.add.image(768, 144, HEROES.REAPER_FIRE, 0)
         // enemy.flipX = true;
-        // enemy.setScale(0.35);
+        // enemy.setScale(0.35); 
         // enemy.setDepth(1);
 
         //render the player health bar
@@ -150,13 +150,6 @@ export class BattleScene extends Phaser.Scene {
 
         this.#cursorKeys = this.input.keyboard.createCursorKeys();
 
-        playerHealthBar.setMeterPercentageAnimated(0.5,
-            {
-                duration: 3000,
-                callback: () => {
-                    console.log('animation complete');
-                }
-            });
     }
 
     update() {
