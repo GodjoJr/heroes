@@ -6,7 +6,7 @@ import { BattleMenu } from "../battle/ui/menu/battle-menu.js";
 import { DIRECTION } from "../common/direction.js";
 import { Background } from "../battle/background.js";
 import { HealthBar } from "../battle/health-bar.js";
-
+import { BattleHero } from "../battle/heroes/battle-hero.js";
 
 
 export class BattleScene extends Phaser.Scene {
@@ -16,6 +16,9 @@ export class BattleScene extends Phaser.Scene {
 
     /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
     #cursorKeys;
+    
+    /** @type {BattleHero} */
+    #activeEnemyHero
 
     constructor() {
         super(
@@ -33,12 +36,27 @@ export class BattleScene extends Phaser.Scene {
         background.showCastle();
 
         //rend out the player and enemy heroes
+        this.#activeEnemyHero = new BattleHero(
+            {
+                scene: this,
+                heroDetails: {
+                    name: HEROES.REAPER_FIRE,
+                    assetKey: HEROES.REAPER_FIRE,
+                    assetFrame: 0,
+                    currentHp: 25,
+                    maxHp: 25,
+                    attackIds: [],
+                    baseAttack: 5
+                }
+            },
+            { x: 768, y: 144 }
+        );
         const hero = this.add.image(256, 296, HEROES.REAPER_ICE, 0);
         hero.setScale(0.45);
-        const enemy = this.add.image(768, 144, HEROES.REAPER_FIRE, 0)
-        enemy.flipX = true;
-        enemy.setScale(0.35);
-        enemy.setDepth(1);
+        // const enemy = this.add.image(768, 144, HEROES.REAPER_FIRE, 0)
+        // enemy.flipX = true;
+        // enemy.setScale(0.35);
+        // enemy.setDepth(1);
 
         //render the player health bar
         const playerHealthBar = new HealthBar(this, 34, 34);
@@ -88,7 +106,8 @@ export class BattleScene extends Phaser.Scene {
         ]);
 
         //render the enemy health bar
-        const enemyHealthBar = new HealthBar(this, 34, 34);
+        // const enemyHealthBar = new HealthBar(this, 34, 34);
+        const enemyHealthBar = this.#activeEnemyHero._healthBar;
         const enemyHeroName = this.add.text(
             30,
             20,
