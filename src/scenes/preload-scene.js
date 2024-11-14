@@ -41,23 +41,39 @@ export class PreloadScene extends Phaser.Scene {
 
         this.load.image(
             BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND,
-            uiPath + 'health-bar/health-bar-background.png'
+            uiPath + 'health-bar/healthBar-ui-background.png'
         );
 
         this.load.image(
             HEALTH_BAR_ASSET_KEYS.LEFT_CAP,
-            uiPath + 'health-bar/barRed_horizontalLeft.png'
+            uiPath + 'health-bar/healthBar-leftCap-red.png'
 
         );
         this.load.image(
             HEALTH_BAR_ASSET_KEYS.MIDDLE,
-            uiPath + 'health-bar/barRed_horizontalMid.png'
+            uiPath + 'health-bar/healthBar-middle-red.png'
         );
 
         this.load.image(
             HEALTH_BAR_ASSET_KEYS.RIGHT_CAP,
-            uiPath + 'health-bar/barRed_horizontalRight.png'
+            uiPath + 'health-bar/healthBar-rightCap-red.png'
 
+        );
+
+        this.load.image(
+            HEALTH_BAR_ASSET_KEYS.LEFT_CAP_SHADOW,
+            uiPath + 'health-bar/healthBar-background-leftCap.png'
+
+        );
+
+        this.load.image(
+            HEALTH_BAR_ASSET_KEYS.MIDDLE_SHADOW,
+            uiPath + 'health-bar/healthBar-background-middle.png'
+        );
+
+        this.load.image(
+            HEALTH_BAR_ASSET_KEYS.RIGHT_CAP_SHADOW,
+            uiPath + 'health-bar/healthBar-background-rightCap.png'
         );
 
         this.load.image(

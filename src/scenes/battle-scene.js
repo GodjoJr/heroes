@@ -41,6 +41,7 @@ export class BattleScene extends Phaser.Scene {
         enemy.setDepth(1);
 
         //render the player health bar
+        const playerHealthBar = new HealthBar(this, 34, 34);
         const playerHeroName = this.add.text(
             30,
             20,
@@ -55,7 +56,7 @@ export class BattleScene extends Phaser.Scene {
         this.add.container(556, 308, [
             this.add.image(0, 0, BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND).setOrigin(0, 0).setScale(1, 0.8),
             playerHeroName,
-            new HealthBar(this, 34, 34).container,
+            playerHealthBar.container,
             this.add.text(
                 playerHeroName.width + 50,
                 23,
@@ -87,6 +88,7 @@ export class BattleScene extends Phaser.Scene {
         ]);
 
         //render the enemy health bar
+        const enemyHealthBar = new HealthBar(this, 34, 34);
         const enemyHeroName = this.add.text(
             30,
             20,
@@ -101,7 +103,7 @@ export class BattleScene extends Phaser.Scene {
         this.add.container(5, 5, [
             this.add.image(0, 0, BATTLE_ASSET_KEYS.HEALTH_BAR_BACKGROUND).setOrigin(0, 0).setScale(1, 0.6),
             enemyHeroName,
-            new HealthBar(this, 34, 34).container,
+            enemyHealthBar.container,
             this.add.text(
                 enemyHeroName.width + 50,
                 23,
@@ -128,6 +130,14 @@ export class BattleScene extends Phaser.Scene {
         this.#battleMenu.showMainBattleMenu();
 
         this.#cursorKeys = this.input.keyboard.createCursorKeys();
+
+        playerHealthBar.setMeterPercentageAnimated(0.5,
+            {
+                duration: 3000,
+                callback: () => {
+                    console.log('animation complete');
+                }
+            });
     }
 
     update() {
