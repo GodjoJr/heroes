@@ -14,6 +14,9 @@ export class EnemyBattleHero extends BattleHero {
      * @param {import("../../types/typedef.js").BattleHeroConfig} config 
      */
     constructor(config) {
-        super(config, ENEMY_POSITION);
+        super({...config, scaleHealthBarBackgroundImageByY: 0.6}, ENEMY_POSITION);
+        this._phaserGameObject.setFlipX(true);
+        this._phaserGameObject.setScale(0.35);
+        
     }
 }
