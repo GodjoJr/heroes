@@ -6,6 +6,7 @@ import { BATTLE_UI_TEXT_STYLE } from "./battle-menu-config.js";
 import { ATTACK_MOVE_OPTIONS } from "./battle-menu-options.js";
 import { BATTLE_MENU_OPTIONS } from "./battle-menu-options.js";
 import { ACTIVE_BATTLE_MENU } from "./battle-menu-options.js";
+import { BattleHero } from "../../heroes/battle-hero.js";
 
 //cursor position
 const BATTLE_MENU_CURSOR_POSITIONS = Object.freeze({
@@ -64,12 +65,17 @@ export class BattleMenu {
     /** @type {number | undefined} */
     #selectedaAttackIndex;
 
+    /** @type {BattleHero} */
+    #activePlayerHero;
+
     /**
      * Create the scene
-     * @param {Phaser.Scene} scene 
+     * @param {Phaser.Scene} scene
+     * @param {BattleHero} activePlayerHero
      */
-    constructor(scene) {
+    constructor(scene, activePlayerHero) {
         this.#scene = scene;
+        this.#activePlayerHero = activePlayerHero;
         this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_MAIN;
         this.#selectedBattleMenuOptions = BATTLE_MENU_OPTIONS.COMBATTRE;
         this.#selectedAttackMoveOptions = ATTACK_MOVE_OPTIONS.MOVE_1;
@@ -118,6 +124,7 @@ export class BattleMenu {
 
     //hide the hero attack sub menu
     hideHeroAttackSubMenu() {
+        this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_MAIN;
         this.#moveSelectionSubBattleMenuPhaserContainerGameObject.setAlpha(0);
     }
 
@@ -192,7 +199,7 @@ export class BattleMenu {
     //create the main battle menu and text
     #createMainBattleMenu() {
         this.#battleTextGameObjectLine1 = this.#scene.add.text(25, 468, 'Qu\'est ce que', BATTLE_UI_TEXT_STYLE);
-        this.#battleTextGameObjectLine2 = this.#scene.add.text(25, 508, `${HEROES.REAPER_ICE} veut faire ?`, BATTLE_UI_TEXT_STYLE);
+        this.#battleTextGameObjectLine2 = this.#scene.add.text(25, 508, `${this.#activePlayerHero.name} veut faire ?`, BATTLE_UI_TEXT_STYLE);
 
         this.#mainBattleMenuCursorPhaserImageGameObject = this.#scene.add.image(BATTLE_MENU_CURSOR_POSITIONS.x, BATTLE_MENU_CURSOR_POSITIONS.y, UI_ASSET_KEYS.CURSOR).setOrigin(0.5).setScale(0.7);
         this.#mainBattleMenuCursorPhaserImageGameObject.flipX = true;
@@ -218,11 +225,17 @@ export class BattleMenu {
         this.#attackBattleMenurCursorPhaserImageGameObject = this.#scene.add.image(40, 37, UI_ASSET_KEYS.CURSOR).setOrigin(0.5).setScale(0.7);
         this.#attackBattleMenurCursorPhaserImageGameObject.flipX = true;
 
+        /** * @type {string[]} */
+        const attackNames = [];
+        for (let i = 0; i <4; i += 1) {
+            attackNames.push(this.#activePlayerHero.attacks[i]?.name || '-');
+        }
+
         this.#moveSelectionSubBattleMenuPhaserContainerGameObject = this.#scene.add.container(0, 448, [
-            this.#scene.add.text(55, 22, 'Lame glace', BATTLE_UI_TEXT_STYLE),
-            this.#scene.add.text(280, 22, 'Givre', BATTLE_UI_TEXT_STYLE),
-            this.#scene.add.text(55, 70, '-', BATTLE_UI_TEXT_STYLE),
-            this.#scene.add.text(280, 70, '-', BATTLE_UI_TEXT_STYLE),
+            this.#scene.add.text(55, 22, attackNames[0], BATTLE_UI_TEXT_STYLE),
+            this.#scene.add.text(280, 22, attackNames[1], BATTLE_UI_TEXT_STYLE),
+            this.#scene.add.text(55, 70, attackNames[2], BATTLE_UI_TEXT_STYLE),
+            this.#scene.add.text(280, 70, attackNames[3], BATTLE_UI_TEXT_STYLE),
 
             this.#attackBattleMenurCursorPhaserImageGameObject
         ]);

@@ -1,0 +1,13 @@
+[
+    {
+        "id": 1,
+        "name": "Fauchage",
+        "animationName": "FAUCHAGE"
+    },
+
+    {
+        "id": 2,
+        "name": "Souffle givré",
+        "animationName": "SOUFFLE_GIVRE"
+    }
+]
