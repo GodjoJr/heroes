@@ -73,7 +73,7 @@ export class BattleScene extends Phaser.Scene {
                     currentHp: 25,
                     maxHp: 25,
                     attackIds: [2],
-                    baseAttack: 25,
+                    baseAttack: 15,
                     currentLevel: 5,
                 }
             },
@@ -90,7 +90,7 @@ export class BattleScene extends Phaser.Scene {
                     currentHp: 25,
                     maxHp: 25,
                     attackIds: [1],
-                    baseAttack: 5,
+                    baseAttack: 10,
                     currentLevel: 5,
                 }
             },
@@ -107,6 +107,8 @@ export class BattleScene extends Phaser.Scene {
     }
 
     update() {
+        this.#battleStateMachine.update();
+
         const wasSpaceKeyPressed = Phaser.Input.Keyboard.JustDown(this.#cursorKeys.space);
         if (wasSpaceKeyPressed) {
             this.#battleMenu.handlePlayerInput('OK');
@@ -115,17 +117,17 @@ export class BattleScene extends Phaser.Scene {
             if (this.#battleMenu.selectedAttack === undefined) {
                 return;
             }
-            
+
             this.#activePlayerAttackIndex = this.#battleMenu.selectedAttack;
-            if(this.#activePlayerAttackIndex === undefined) {
+            if (this.#activePlayerAttackIndex === undefined) {
                 return;
             }
-            
+
             console.log('Attaque choisie : ' + this.#battleMenu.selectedAttack);
 
 
             this.#battleMenu.hideHeroAttackSubMenu();
-            this.#handleBattleSequence();
+            this.#battleStateMachine.setState(BATTLE_STATES.ENEMY_INPUT);
         }
 
         if (Phaser.Input.Keyboard.JustDown(this.#cursorKeys.shift)) {
@@ -202,39 +204,61 @@ export class BattleScene extends Phaser.Scene {
             onEnter: () => {
                 this.#battleMenu.showMainBattleMenu();
             },
-            //TO CONTINUE
         });
 
         this.#battleStateMachine.addState({
             name: BATTLE_STATES.ENEMY_INPUT,
+            onEnter: () => {
+                // TODO: add feature in a future update
+                // pick a random move for the enemy monster, and in the future implement some type of AI behavior
+                this.#battleStateMachine.setState(BATTLE_STATES.BATTLE);
+
+            }
         });
 
         this.#battleStateMachine.addState({
             name: BATTLE_STATES.BATTLE,
+            onEnter: () => {
+                // general battle flow
+                // show attack used, brief pause
+                // then play attack animation, brief pause
+                // then play damage animation, brief pause
+                // then play health bar animation, bried pause
+                // then repeat the steps above for the other hero
+
+                this.#playerAttack();
+            }
         });
 
         this.#battleStateMachine.addState({
+            name: BATTLE_STATES.POST_ATTACK_CHECK,
+            onEnter: () => {
+                this.#postBattleSequenceCheck();
+            }
+        })
+
+        this.#battleStateMachine.addState({
             name: BATTLE_STATES.FINISHED,
+            onEnter: () => {
+                this.#transitionToNextScene();
+            }
         });
 
         this.#battleStateMachine.addState({
             name: BATTLE_STATES.FLEE_ATTEMPT,
+            onEnter: () => this.#battleMenu.updateInfoPaneMessagesAndWaitForInput(
+                [`Vous vous êtes échappé !`],
+                () => {
+                    this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
+                }
+            )
         });
 
         //start the state machine
         this.#battleStateMachine.setState('INTRO');
     }
 
-    #handleBattleSequence() {
-        // general battle flow
-        // show attack used, brief pause
-        // then play attack animation, brief pause
-        // then play damage animation, brief pause
-        // then play health bar animation, bried pause
-        // then repeat the steps above for the other hero
 
-        this.#playerAttack();
-    }
 
     #playerAttack() {
         this.#battleMenu.updateInfoPaneMessagesAndWaitForInput(
@@ -250,8 +274,8 @@ export class BattleScene extends Phaser.Scene {
     }
 
     #enemyAttack() {
-        if(this.#activeEnemyHero.isFainted){
-            this.#postBattleSequenceCheck();
+        if (this.#activeEnemyHero.isFainted) {
+            this.#battleStateMachine.setState(BATTLE_STATES.POST_ATTACK_CHECK);
             return;
         }
 
@@ -260,7 +284,8 @@ export class BattleScene extends Phaser.Scene {
             () => {
                 this.time.delayedCall(500, () => {
                     this.#activePlayerHero.takeDamage(this.#activeEnemyHero.baseAttack, () => {
-                        this.#postBattleSequenceCheck();
+                        this.#battleStateMachine.setState(BATTLE_STATES.POST_ATTACK_CHECK);
+
                     });
                 })
             }
@@ -268,27 +293,27 @@ export class BattleScene extends Phaser.Scene {
     }
 
     #postBattleSequenceCheck() {
-        if (this.#activeEnemyHero.isFainted){
+        if (this.#activeEnemyHero.isFainted) {
             this.#battleMenu.updateInfoPaneMessagesAndWaitForInput(
                 [`${this.#activeEnemyHero.name} ennemi est K.O.`, ` ${this.#activePlayerHero.name} gagne de l'experience !`],
                 () => {
-                  this.#transitionToNextScene(); 
+                    this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
                 }
             );
             return;
         }
 
-        if (this.#activePlayerHero.isFainted){
+        if (this.#activePlayerHero.isFainted) {
             this.#battleMenu.updateInfoPaneMessagesAndWaitForInput(
                 [`${this.#activePlayerHero.name} est K.O.`, `Vous n'avez plus de heros en vie, vous fuiez !`],
                 () => {
-                  this.#transitionToNextScene(); 
+                    this.#battleStateMachine.setState(BATTLE_STATES.FINISHED);
                 }
             );
             return;
         }
 
-        this.#battleMenu.showMainBattleMenu();
+        this.#battleStateMachine.setState(BATTLE_STATES.PLAYER_INPUT);
     }
 
     #transitionToNextScene() {

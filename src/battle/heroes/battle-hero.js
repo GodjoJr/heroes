@@ -1,6 +1,5 @@
 import { HealthBar } from "../health-bar.js";
-import { BATTLE_ASSET_KEYS } from "../../assets/assets-keys.js";
-import { Data } from "phaser";
+import { BATTLE_ASSET_KEYS, DATA_ASSET_KEYS } from "../../assets/assets-keys.js";
 import { DataUtils } from "../../utils/data-utils.js";
 
 
@@ -53,6 +52,8 @@ export class BattleHero {
         );
 
         this.#createHealthBarComponents(config.scaleHealthBarBackgroundImageByY);
+
+
 
         this._heroDetails.attackIds.forEach(attackId => {
             const monsterAttack = DataUtils.getMonsterAttack(this._scene, attackId);
