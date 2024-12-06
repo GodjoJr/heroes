@@ -87,6 +87,11 @@ export class PreloadScene extends Phaser.Scene {
             uiPath + 'cursor.png'
         );
 
+        this.load.image(
+            UI_ASSET_KEYS.CURSOR_TEXT,
+            uiPath + 'cursor-text.png'
+        )
+
         //load json data
         this.load.json(
             DATA_ASSET_KEYS.ATTACKS,

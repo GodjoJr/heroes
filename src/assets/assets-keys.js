@@ -25,6 +25,7 @@ export const HEALTH_BAR_ASSET_KEYS = Object.freeze({
 
 export const UI_ASSET_KEYS = Object.freeze({
     CURSOR: 'CURSOR',
+    CURSOR_TEXT: 'CURSOR_TEXT',
 })
 
 export const DATA_ASSET_KEYS = Object.freeze({

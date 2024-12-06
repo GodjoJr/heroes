@@ -110,6 +110,22 @@ export class BattleScene extends Phaser.Scene {
         this.#battleStateMachine.update();
 
         const wasSpaceKeyPressed = Phaser.Input.Keyboard.JustDown(this.#cursorKeys.space);
+        //limit input based on the current battle state we are in
+        //if we are not in the right battle state, return early and do not process input
+
+        if (wasSpaceKeyPressed && (
+            this.#battleStateMachine.currentStateName === BATTLE_STATES.PRE_BATTLE_INFO ||
+            this.#battleStateMachine.currentStateName === BATTLE_STATES.POST_ATTACK_CHECK ||
+            this.#battleStateMachine.currentStateName === BATTLE_STATES.FLEE_ATTEMPT)
+        ) {
+            this.#battleMenu.handlePlayerInput('OK');
+            return;
+
+        }
+
+        if (this.#battleStateMachine.currentStateName !== BATTLE_STATES.PLAYER_INPUT) {
+            return;
+        }
         if (wasSpaceKeyPressed) {
             this.#battleMenu.handlePlayerInput('OK');
 
@@ -188,10 +204,10 @@ export class BattleScene extends Phaser.Scene {
             name: BATTLE_STATES.BRING_OUT_HERO,
             onEnter: () => {
                 //wait for the player hero to appear on the screen and notify the player about the hero
-                this.#battleMenu.updateInfoPaneMessagesAndWaitForInput([`A toi de jouer ${this.#activePlayerHero.name} !`],
+                this.#battleMenu.updateInfoPaneMessagesAndNoInputRequired(`A toi de jouer ${this.#activePlayerHero.name} !`,
                     () => {
                         //wait to text animation to complete and move tho the next state
-                        this.time.delayedCall(500, () => {
+                        this.time.delayedCall(1500, () => {
                             this.#battleStateMachine.setState(BATTLE_STATES.PLAYER_INPUT);
                         })
                     })
@@ -245,6 +261,7 @@ export class BattleScene extends Phaser.Scene {
         });
 
         this.#battleStateMachine.addState({
+            
             name: BATTLE_STATES.FLEE_ATTEMPT,
             onEnter: () => this.#battleMenu.updateInfoPaneMessagesAndWaitForInput(
                 [`Vous vous êtes échappé !`],
@@ -261,8 +278,8 @@ export class BattleScene extends Phaser.Scene {
 
 
     #playerAttack() {
-        this.#battleMenu.updateInfoPaneMessagesAndWaitForInput(
-            [`${this.#activePlayerHero.name} utilise ${this.#activePlayerHero.attacks[this.#activePlayerAttackIndex].name} !`],
+        this.#battleMenu.updateInfoPaneMessagesAndNoInputRequired(
+            `${this.#activePlayerHero.name} utilise ${this.#activePlayerHero.attacks[this.#activePlayerAttackIndex].name} !`,
             () => {
                 this.time.delayedCall(500, () => {
                     this.#activeEnemyHero.takeDamage(this.#activePlayerHero.baseAttack, () => {
@@ -279,8 +296,8 @@ export class BattleScene extends Phaser.Scene {
             return;
         }
 
-        this.#battleMenu.updateInfoPaneMessagesAndWaitForInput(
-            [`${this.#activePlayerHero.name} utilise ${this.#activeEnemyHero.attacks[0].name} !`],
+        this.#battleMenu.updateInfoPaneMessagesAndNoInputRequired(
+            `${this.#activePlayerHero.name} utilise ${this.#activeEnemyHero.attacks[0].name} !`,
             () => {
                 this.time.delayedCall(500, () => {
                     this.#activePlayerHero.takeDamage(this.#activeEnemyHero.baseAttack, () => {

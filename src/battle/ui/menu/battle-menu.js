@@ -12,14 +12,16 @@ import { BattleHero } from "../../heroes/battle-hero.js";
 const BATTLE_MENU_CURSOR_POSITIONS = Object.freeze({
     x: 41,
     y: 37
-})
+});
 
 const ATTACK_MENU_CURSOR_POSITIONS = Object.freeze({
     x: 41,
     y: 37
-})
+});
 
-
+const PLAYER_INPUT_CURSOR_POSITION = Object.freeze({
+    y: 483,
+});
 
 export class BattleMenu {
 
@@ -68,6 +70,12 @@ export class BattleMenu {
     /** @type {BattleHero} */
     #activePlayerHero;
 
+    /** @type {Phaser.GameObjects.Image} */
+    #userInputCursorPhaserImageGameObject;
+
+    /** @type {Phaser.Tweens.Tween} */
+    #userInputCursorPhaserTween;
+
     /**
      * Create the scene
      * @param {Phaser.Scene} scene
@@ -86,6 +94,7 @@ export class BattleMenu {
         this.#createMainInfoPane();
         this.#createMainBattleMenu();
         this.#createHeroAttackSubMenu();
+        this.#createPlayerInputCursor();
     }
 
     /** @type {number | undefined} */
@@ -126,6 +135,22 @@ export class BattleMenu {
     hideHeroAttackSubMenu() {
         this.#activeBattleMenu = ACTIVE_BATTLE_MENU.BATTLE_MAIN;
         this.#moveSelectionSubBattleMenuPhaserContainerGameObject.setAlpha(0);
+    }
+
+    playInputCursorAnimation() {
+        console.log('playInputCursorAnimation');
+        this.#userInputCursorPhaserImageGameObject.setPosition(
+            this.#battleTextGameObjectLine1.displayWidth + this.#userInputCursorPhaserImageGameObject.displayWidth * 2.3,
+            this.#userInputCursorPhaserImageGameObject.y
+        );
+
+        this.#userInputCursorPhaserImageGameObject.setAlpha(1);
+        this.#userInputCursorPhaserTween.restart();
+    }
+
+    hideInputCursor() {
+        this.#userInputCursorPhaserImageGameObject.setAlpha(0);
+        this.#userInputCursorPhaserTween.pause();
     }
 
     /**
@@ -177,9 +202,28 @@ export class BattleMenu {
         this.#updateInfoPaneWithMessage();
     }
 
+        /**
+     * 
+     * @param {string} message 
+     * @param {() => void} [callback] 
+     */
+        updateInfoPaneMessagesAndNoInputRequired(message, callback) {
+            this.#battleTextGameObjectLine1.setText('').setAlpha(1);
+
+            //TODO: animate message
+            this.#battleTextGameObjectLine1.setText(message);
+            this.#waitingForPlayerInput = false;
+
+            if (callback) {
+                callback();
+            }
+        }
+    
+
     #updateInfoPaneWithMessage() {
         this.#waitingForPlayerInput = false;
         this.#battleTextGameObjectLine1.setText('').setAlpha(1);
+        this.hideInputCursor();
 
         //check if all messages have been displayed from the queue and call the callback
         if (this.#queuedInfoPanelMessages.length === 0) {
@@ -194,6 +238,7 @@ export class BattleMenu {
         const messageToDisplay = this.#queuedInfoPanelMessages.shift();
         this.#battleTextGameObjectLine1.setText(messageToDisplay);
         this.#waitingForPlayerInput = true;
+        this.playInputCursorAnimation();
     }
 
     //create the main battle menu and text
@@ -392,7 +437,7 @@ export class BattleMenu {
         if (this.#activeBattleMenu !== ACTIVE_BATTLE_MENU.BATTLE_MOVE_SELECT) {
             return;
         }
-
+        
         if (this.#selectedAttackMoveOptions === ATTACK_MOVE_OPTIONS.MOVE_1) {
             switch (direction) {
                 case DIRECTION.RIGHT:
@@ -502,10 +547,11 @@ export class BattleMenu {
     }
 
     #switchToMainBattleMenu() {
-        this.#selectedBattleMenuOptions = BATTLE_MENU_OPTIONS.COMBATTRE
+        this.#waitingForPlayerInput = false;
+        this.hideInputCursor();
+        this.#selectedBattleMenuOptions = BATTLE_MENU_OPTIONS.COMBATTRE;
         this.hideHeroAttackSubMenu();
         this.showMainBattleMenu();
-        this.#moveMainBattleMenuCursor();
     }
 
     #handlePlayerChooseMainBattleOption() {
@@ -571,4 +617,22 @@ export class BattleMenu {
         this.#selectedaAttackIndex = selectedaAttackIndex;
     }
 
+    #createPlayerInputCursor() {
+        this.#userInputCursorPhaserImageGameObject = this.#scene.add.image(0, 0,UI_ASSET_KEYS.CURSOR_TEXT);
+        this.#userInputCursorPhaserImageGameObject.setAngle(90);
+        this.#userInputCursorPhaserImageGameObject.setAlpha(0);
+
+        this.#userInputCursorPhaserTween = this.#scene.add.tween({
+            delay: 0,
+            dureation: 500,
+            repeat: -1,
+            y: {
+                from: PLAYER_INPUT_CURSOR_POSITION.y,
+                start: PLAYER_INPUT_CURSOR_POSITION.y,
+                to: PLAYER_INPUT_CURSOR_POSITION.y + 6,
+            },
+            targets: this.#userInputCursorPhaserImageGameObject,
+        });
+        this.#userInputCursorPhaserTween.pause();
+    }
 }
