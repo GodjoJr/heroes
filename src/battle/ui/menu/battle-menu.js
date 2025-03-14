@@ -7,6 +7,7 @@ import { ATTACK_MOVE_OPTIONS } from "./battle-menu-options.js";
 import { BATTLE_MENU_OPTIONS } from "./battle-menu-options.js";
 import { ACTIVE_BATTLE_MENU } from "./battle-menu-options.js";
 import { BattleHero } from "../../heroes/battle-hero.js";
+import { animateText } from "../../../utils/text-utils.js";
 
 //cursor position
 const BATTLE_MENU_CURSOR_POSITIONS = Object.freeze({
@@ -76,6 +77,12 @@ export class BattleMenu {
     /** @type {Phaser.Tweens.Tween} */
     #userInputCursorPhaserTween;
 
+    /** @type {boolean} */
+    #queuedMessagesSkipAnimation;
+
+    /** @type {boolean} */
+    #queuedMessageAnimationPlaying;
+
     /**
      * Create the scene
      * @param {Phaser.Scene} scene
@@ -91,6 +98,7 @@ export class BattleMenu {
         this.#queuedInfoPanelMessages = [];
         this.#waitingForPlayerInput = false;
         this.#selectedaAttackIndex = undefined;
+        this.#queuedMessagesSkipAnimation = false;
         this.#createMainInfoPane();
         this.#createMainBattleMenu();
         this.#createHeroAttackSubMenu();
@@ -158,6 +166,11 @@ export class BattleMenu {
      * @param {import ('../../../common/direction.js').Direction | 'OK' | 'CANCEL'} input 
      */
     handlePlayerInput(input) {
+
+        if (this.#queuedMessageAnimationPlaying && input === 'OK') {
+            return;
+        }
+
         if (this.#waitingForPlayerInput && (input === 'CANCEL' || input === 'OK')) {
             this.#updateInfoPaneWithMessage();
             return;
@@ -193,32 +206,47 @@ export class BattleMenu {
     /**
      * 
      * @param {string[]} message 
-     * @param {() => void} [callback] 
+     * @param {() => void} [callback]
+     * @param {boolean} [skipAnimation = false]
      */
-    updateInfoPaneMessagesAndWaitForInput(message, callback) {
+    updateInfoPaneMessagesAndWaitForInput(message, callback, skipAnimation = false) {
         this.#queuedInfoPanelMessages = message;
         this.#quededInfoPanelCallback = callback;
+        this.#queuedMessagesSkipAnimation = skipAnimation;
 
         this.#updateInfoPaneWithMessage();
     }
 
-        /**
-     * 
-     * @param {string} message 
-     * @param {() => void} [callback] 
-     */
-        updateInfoPaneMessagesAndNoInputRequired(message, callback) {
-            this.#battleTextGameObjectLine1.setText('').setAlpha(1);
+    /**
+ * 
+ * @param {string} message 
+ * @param {() => void} [callback]
+ * @param {boolean} [skipAnimation = false]
+ */
+    updateInfoPaneMessagesAndNoInputRequired(message, callback, skipAnimation = false) {
+        this.#battleTextGameObjectLine1.setText('').setAlpha(1);
 
-            //TODO: animate message
+        if (skipAnimation) {
             this.#battleTextGameObjectLine1.setText(message);
             this.#waitingForPlayerInput = false;
 
             if (callback) {
                 callback();
             }
+            return;
         }
-    
+
+        animateText(this.#scene, this.#battleTextGameObjectLine1, message, {
+            delay: 50,
+            callback: () => {
+                this.#waitingForPlayerInput = false;
+                if (callback) {
+                    callback();
+                }
+            }
+        })
+    }
+
 
     #updateInfoPaneWithMessage() {
         this.#waitingForPlayerInput = false;
@@ -236,9 +264,27 @@ export class BattleMenu {
 
         //get first message from queue and animate message
         const messageToDisplay = this.#queuedInfoPanelMessages.shift();
-        this.#battleTextGameObjectLine1.setText(messageToDisplay);
-        this.#waitingForPlayerInput = true;
-        this.playInputCursorAnimation();
+
+        if (this.#queuedMessagesSkipAnimation) {
+            this.#battleTextGameObjectLine1.setText(messageToDisplay);
+            this.#queuedMessageAnimationPlaying = false;
+            this.#waitingForPlayerInput = true;
+            if (this.#quededInfoPanelCallback) {
+                this.#quededInfoPanelCallback();
+                this.#quededInfoPanelCallback = undefined;
+            }
+            return;
+        }
+
+        this.#queuedMessageAnimationPlaying = true;
+        animateText(this.#scene, this.#battleTextGameObjectLine1, messageToDisplay, {
+            delay: 50,
+            callback: () => {
+                this.playInputCursorAnimation();
+                this.#waitingForPlayerInput = true;
+                this.#queuedMessageAnimationPlaying = false;
+            }
+        })
     }
 
     //create the main battle menu and text
@@ -272,7 +318,7 @@ export class BattleMenu {
 
         /** * @type {string[]} */
         const attackNames = [];
-        for (let i = 0; i <4; i += 1) {
+        for (let i = 0; i < 4; i += 1) {
             attackNames.push(this.#activePlayerHero.attacks[i]?.name || '-');
         }
 
@@ -437,7 +483,7 @@ export class BattleMenu {
         if (this.#activeBattleMenu !== ACTIVE_BATTLE_MENU.BATTLE_MOVE_SELECT) {
             return;
         }
-        
+
         if (this.#selectedAttackMoveOptions === ATTACK_MOVE_OPTIONS.MOVE_1) {
             switch (direction) {
                 case DIRECTION.RIGHT:
@@ -618,7 +664,7 @@ export class BattleMenu {
     }
 
     #createPlayerInputCursor() {
-        this.#userInputCursorPhaserImageGameObject = this.#scene.add.image(0, 0,UI_ASSET_KEYS.CURSOR_TEXT);
+        this.#userInputCursorPhaserImageGameObject = this.#scene.add.image( 0, 0, UI_ASSET_KEYS.CURSOR_TEXT);
         this.#userInputCursorPhaserImageGameObject.setAngle(90);
         this.#userInputCursorPhaserImageGameObject.setAlpha(0);
 
